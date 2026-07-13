@@ -4,170 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>בחירת מושבים - בית כנסת יובלים דרום</title>
-    <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts: Heebo for clean Hebrew typography -->
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;800&display=swap" rel="stylesheet">
     
     <style>
-        body {
-            font-family: 'Heebo', sans-serif;
-            background-color: #f8fafc;
-        }
+        body { font-family: 'Heebo', sans-serif; background-color: #f8fafc; }
         
-        /* Seat Base Styles */
         .seat {
-            width: 34px;
-            height: 34px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            position: relative;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            flex-shrink: 0;
+            width: 34px; height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; position: relative;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); flex-shrink: 0;
         }
 
-        /* Available Seat */
-        .seat.available {
-            background-color: #f0fdfa;
-            color: #0f766e; 
-            border: 1px solid #ccfbf1;
-        }
-        .seat.available:hover {
-            background-color: #ccfbf1;
-            transform: scale(1.05);
-            box-shadow: 0 4px 10px rgba(15, 118, 110, 0.15);
-            border-color: #99f6e4;
-            z-index: 10;
-        }
-
-        /* Occupied Seat */
-        .seat.occupied {
-            background-color: #fff1f2;
-            color: #be123c;
-            border: 1px solid #fecdd3;
-            cursor: not-allowed;
-            opacity: 0.9;
-        }
-
-        /* Selected (by me) Seat */
-        .seat.selected {
-            background-color: #4f46e5;
-            color: white;
-            border: 1px solid #4338ca;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-        }
-
-        /* Desks/Tables */
-        .desk-horizontal {
-            height: 14px;
-            width: 100%;
-            background: linear-gradient(to bottom, #e2e8f0, #cbd5e1);
-            border: 1px solid #94a3b8;
-            border-radius: 4px;
-            margin-bottom: 6px;
-        }
+        .seat.available { background-color: #f0fdfa; color: #0f766e; border: 1px solid #ccfbf1; }
+        .seat.available:hover { background-color: #ccfbf1; transform: scale(1.05); box-shadow: 0 4px 10px rgba(15, 118, 110, 0.15); border-color: #99f6e4; z-index: 10; }
         
-        .desk-vertical {
-            width: 14px;
-            height: 100%;
-            background: linear-gradient(to right, #e2e8f0, #cbd5e1);
-            border: 1px solid #94a3b8;
-            border-radius: 4px;
-        }
+        .seat.occupied { background-color: #fff1f2; color: #be123c; border: 1px solid #fecdd3; cursor: not-allowed; opacity: 0.9; }
+        
+        .seat.selected { background-color: #8b5cf6; color: white; border: 1px solid #7c3aed; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); }
 
-        /* Layout Container */
-        .synagogue-layout {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 2.5rem;
-            background-color: white;
-            border-radius: 1.5rem;
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.05);
-            overflow-x: auto; 
-            border: 1px solid #f1f5f9;
-            min-width: 800px; 
-        }
+        .desk-horizontal { height: 14px; width: 100%; background: linear-gradient(to bottom, #e2e8f0, #cbd5e1); border: 1px solid #94a3b8; border-radius: 4px; margin-bottom: 6px; }
+        .desk-vertical { width: 14px; height: 100%; background: linear-gradient(to right, #e2e8f0, #cbd5e1); border: 1px solid #94a3b8; border-radius: 4px; }
 
-        /* Tooltip */
-        .seat[data-name]:hover::after {
-            content: attr(data-name);
-            position: absolute;
-            bottom: 125%;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(15, 23, 42, 0.9);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 12px;
-            white-space: nowrap;
-            z-index: 50;
-            pointer-events: none;
-        }
+        .synagogue-layout { display: flex; flex-direction: column; align-items: center; padding: 2.5rem; background-color: white; border-radius: 1.5rem; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.05); overflow-x: auto; border: 1px solid #f1f5f9; min-width: 800px; }
 
-        /* Modal Styles */
-        .modal-overlay {
-            background-color: rgba(15, 23, 42, 0.4);
-            backdrop-filter: blur(8px);
-        }
+        .seat[data-name]:hover::after { content: attr(data-name); position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%); background-color: rgba(15, 23, 42, 0.9); color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; white-space: nowrap; z-index: 50; pointer-events: none; }
+        .modal-overlay { background-color: rgba(15, 23, 42, 0.4); backdrop-filter: blur(8px); }
     </style>
 </head>
 <body class="min-h-screen text-slate-800 pb-10 bg-slate-50">
 
-    <!-- Header -->
     <header class="bg-white/80 backdrop-blur-lg border-b border-slate-200 sticky top-0 z-30 shadow-sm transition-all">
         <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="text-center md:text-right">
                 <h1 class="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-teal-500 pb-1">בית כנסת יובלים דרום</h1>
                 <p class="text-slate-500 font-medium text-sm">מערכת בחירת מקומות ישיבה אונליין</p>
             </div>
-            
-            <!-- Status Legend -->
             <div class="flex gap-4 bg-slate-50 border border-slate-100 p-2.5 rounded-xl text-sm font-medium shadow-inner">
-                <div class="flex items-center gap-2">
-                    <div class="w-5 h-5 bg-teal-50 rounded-md border border-teal-200 flex items-center justify-center shadow-sm"></div>
-                    <span class="text-slate-600">פנוי</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <div class="w-5 h-5 bg-rose-50 rounded-md border border-rose-200 shadow-sm"></div>
-                    <span class="text-slate-600">תפוס</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <div class="w-5 h-5 bg-indigo-600 rounded-md border border-indigo-700 shadow-sm"></div>
-                    <span class="text-slate-600">שלי</span>
-                </div>
+                <div class="flex items-center gap-2"><div class="w-5 h-5 bg-teal-50 rounded-md border border-teal-200 shadow-sm"></div><span class="text-slate-600">פנוי</span></div>
+                <div class="flex items-center gap-2"><div class="w-5 h-5 bg-rose-50 rounded-md border border-rose-200 shadow-sm"></div><span class="text-slate-600">תפוס</span></div>
+                <div class="flex items-center gap-2"><div class="w-5 h-5 bg-purple-500 rounded-md border border-purple-600 shadow-sm"></div><span class="text-slate-600">שלי</span></div>
             </div>
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="container mx-auto px-2 mt-8">
-        
-        <!-- Loading Indicator -->
         <div id="loading-indicator" class="flex flex-col items-center justify-center py-20">
             <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-900 mb-4"></div>
             <p class="text-lg font-semibold text-gray-600">טוען את מפת המושבים...</p>
         </div>
 
-        <!-- Authentication/Initialization Status Area -->
-        <div id="auth-status" class="hidden text-center text-red-600 mb-4 font-bold bg-red-100 p-3 rounded-lg max-w-2xl mx-auto">
-            <!-- Auth errors will appear here -->
-        </div>
+        <div id="auth-status" class="hidden text-center text-red-600 mb-4 font-bold bg-red-100 p-3 rounded-lg max-w-2xl mx-auto"></div>
 
-        <!-- The Synagogue Layout Container -->
         <div id="synagogue-container" class="hidden overflow-x-auto pb-8">
             <div class="synagogue-layout mx-auto max-w-[1200px] min-w-[1000px] relative">
                 
-                <!-- Ark (South) -->
                 <div class="w-full flex justify-center mb-12 relative z-10">
                     <div class="bg-gradient-to-b from-amber-50 to-amber-100 border border-amber-200 text-amber-900 px-32 py-5 rounded-b-2xl shadow-sm text-center relative border-t-0">
                         <div class="absolute top-0 left-0 w-full h-1.5 bg-amber-500"></div>
@@ -176,72 +68,56 @@
                     </div>
                 </div>
 
-                <!-- East Door Indicator -->
-                <div class="absolute top-24 left-0 bg-slate-50 px-5 py-2.5 rounded-r-xl border border-l-0 border-slate-300 text-sm font-bold text-slate-600 shadow-sm flex items-center gap-2 z-10">
-                    <i class="fas fa-door-open text-slate-400"></i>
-                    דלת כניסה (מזרח)
-                </div>
-
                 <div class="flex justify-between w-full gap-8 px-6 relative z-0">
                     
-                    <!-- WEST COLUMN (Right Side) -->
+                    <!-- צד מערב (ימין) -->
                     <div class="flex flex-col items-end gap-12 w-[30%]">
-                        <!-- Group 1 -->
                         <div id="g1" class="relative group-container"><span class="absolute -right-10 top-1/2 -translate-y-1/2 text-[10px] text-slate-300 font-bold -rotate-90 whitespace-nowrap">גוש 1</span></div>
-                        <!-- Group 2 -->
                         <div id="g2" class="relative group-container"><span class="absolute -right-10 top-1/2 -translate-y-1/2 text-[10px] text-slate-300 font-bold -rotate-90 whitespace-nowrap">גוש 2</span></div>
                         
-                        <!-- West Door -->
                         <div class="bg-slate-50 px-5 py-2.5 rounded-l-xl border border-r-0 border-slate-300 text-sm font-bold text-slate-600 shadow-sm flex items-center gap-2 -mr-6 my-2 z-10 w-max self-end relative right-[-24px]">
                             <i class="fas fa-door-open text-slate-400"></i>
                             דלת כניסה (מערב)
                         </div>
 
                         <div class="flex flex-col items-end gap-10 mt-2">
-                            <!-- Group 3 -->
                             <div id="g3" class="relative group-container"><span class="absolute -right-10 top-1/2 -translate-y-1/2 text-[10px] text-slate-300 font-bold -rotate-90 whitespace-nowrap">גוש 3</span></div>
-                            <!-- Group 4 -->
                             <div id="g4" class="relative group-container"><span class="absolute -right-10 top-1/2 -translate-y-1/2 text-[10px] text-slate-300 font-bold -rotate-90 whitespace-nowrap">גוש 4</span></div>
                         </div>
                     </div>
 
-                    <!-- CENTER COLUMN -->
+                    <!-- מרכז -->
                     <div class="flex flex-col items-center w-[40%] relative">
-                        
-                        <!-- Group 11 (Between Ark and Bimah) -->
                         <div id="g11" class="mb-12 relative group-container"><span class="absolute -right-12 top-1/2 -translate-y-1/2 text-[10px] text-slate-300 font-bold -rotate-90 whitespace-nowrap">גוש 11</span></div>
                         
-                        <!-- The Bimah -->
                         <div class="w-56 h-56 bg-slate-50 border-2 border-slate-200 flex items-center justify-center rounded-2xl shadow-lg relative my-6">
                             <div class="absolute inset-4 border border-slate-200 rounded-xl bg-white opacity-60"></div>
                             <span class="text-slate-400 font-bold text-4xl tracking-widest relative z-10 drop-shadow-sm">במה</span>
                         </div>
 
-                        <!-- North Center Seats (Groups 5 & 6) -->
                         <div class="flex gap-8 justify-center mt-12 w-full">
                             <div id="g5" class="relative group-container"><span class="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] text-slate-300 font-bold whitespace-nowrap">גוש 5</span></div>
                             <div id="g6" class="relative group-container"><span class="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] text-slate-300 font-bold whitespace-nowrap">גוש 6</span></div>
                         </div>
                     </div>
 
-                    <!-- EAST COLUMN (Left Side) -->
+                    <!-- צד מזרח (שמאל) -->
                     <div class="flex flex-col items-start gap-12 w-[30%]">
-                        <!-- Group 10 -->
-                        <div id="g10" class="relative group-container"><span class="absolute -left-10 top-1/2 -translate-y-1/2 text-[10px] text-slate-300 font-bold rotate-90 whitespace-nowrap">גוש 10</span></div>
-                        <!-- Group 9 -->
+                        <div class="absolute top-10 left-0 bg-slate-50 px-5 py-2.5 rounded-r-xl border border-l-0 border-slate-300 text-sm font-bold text-slate-600 shadow-sm flex items-center gap-2 z-10">
+                            <i class="fas fa-door-open text-slate-400"></i>
+                            דלת כניסה (מזרח)
+                        </div>
+
+                        <div id="g10" class="relative group-container mt-16"><span class="absolute -left-10 top-1/2 -translate-y-1/2 text-[10px] text-slate-300 font-bold rotate-90 whitespace-nowrap">גוש 10</span></div>
                         <div id="g9" class="relative group-container"><span class="absolute -left-10 top-1/2 -translate-y-1/2 text-[10px] text-slate-300 font-bold rotate-90 whitespace-nowrap">גוש 9</span></div>
                         
                         <div class="flex flex-col items-start gap-10 mt-6">
-                            <!-- Group 8 -->
                             <div id="g8" class="relative group-container"><span class="absolute -left-10 top-1/2 -translate-y-1/2 text-[10px] text-slate-300 font-bold rotate-90 whitespace-nowrap">גוש 8</span></div>
-                            <!-- Group 7 (Facing West) -->
                             <div id="g7" class="relative group-container"><span class="absolute -left-10 top-1/2 -translate-y-1/2 text-[10px] text-slate-300 font-bold rotate-90 whitespace-nowrap">גוש 7</span></div>
                         </div>
                     </div>
-
                 </div>
                 
-                <!-- Total Seats Counter -->
                 <div class="w-full text-center mt-8 pb-6 text-slate-500 text-base font-medium">
                     סה"כ מושבים במערכת: <span id="total-seats-count" class="font-bold text-slate-700 text-lg">0</span> / 123
                 </div>
@@ -249,77 +125,55 @@
         </div>
     </main>
 
-    <!-- Seat Selection Modal -->
+    <!-- מודל בחירת מושב -->
     <div id="selection-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-overlay opacity-0 transition-opacity duration-300">
         <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4 transform scale-95 transition-transform duration-300" id="modal-content">
-            
             <div class="flex justify-between items-center mb-4 border-b pb-3">
                 <h3 class="text-xl font-bold text-gray-800">בחירת מושב מספר <span id="modal-seat-number" class="text-blue-600 bg-blue-100 px-2 py-1 rounded"></span></h3>
-                <button id="btn-close-modal" class="text-gray-400 hover:text-gray-600 transition-colors">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
+                <button id="btn-close-modal" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fas fa-times text-xl"></i></button>
             </div>
-            
             <div class="mb-6">
                 <label for="occupant-name" class="block text-sm font-medium text-gray-700 mb-2">שם מלא (יופיע על הכיסא):</label>
                 <input type="text" id="occupant-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="לדוגמא: ישראל ישראלי" required>
                 <p id="name-error" class="text-red-500 text-sm mt-1 hidden">נא להזין שם תקין.</p>
             </div>
-            
             <div class="flex gap-3">
-                <button id="btn-confirm-seat" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">
-                    שמור מקום זה
-                </button>
-                <button id="btn-cancel-seat" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors">
-                    ביטול
-                </button>
+                <button id="btn-confirm-seat" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">שמור מקום זה</button>
+                <button id="btn-cancel-seat" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors">ביטול</button>
             </div>
         </div>
     </div>
 
-    <!-- Seat Action Modal (For viewing occupied or canceling own) -->
+    <!-- מודל צפייה וביטול -->
     <div id="action-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-overlay opacity-0 transition-opacity duration-300">
         <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4 transform scale-95 transition-transform duration-300" id="action-modal-content">
-            
             <div class="flex justify-between items-center mb-4 border-b pb-3">
                 <h3 class="text-xl font-bold text-gray-800">מושב מספר <span id="action-seat-number" class="text-red-600 bg-red-100 px-2 py-1 rounded"></span></h3>
-                <button id="btn-close-action-modal" class="text-gray-400 hover:text-gray-600 transition-colors">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
+                <button id="btn-close-action-modal" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fas fa-times text-xl"></i></button>
             </div>
-            
             <div class="mb-6 text-center py-4 bg-gray-50 rounded-lg">
                 <p class="text-sm text-gray-500 mb-1">מושב זה שמור עבור:</p>
                 <p id="action-occupant-name" class="text-xl font-bold text-gray-900"></p>
             </div>
-            
-            <!-- Only shown if the current user owns this seat -->
             <div id="owner-actions" class="hidden">
                 <button id="btn-release-seat" class="w-full bg-red-50 border border-red-200 hover:bg-red-100 text-red-600 font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
-                    <i class="fas fa-trash-alt"></i>
-                    בטל את השמירה שלי
+                    <i class="fas fa-trash-alt"></i> בטל את השמירה שלי
                 </button>
             </div>
-            
-            <button id="btn-ok-action" class="w-full mt-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors">
-                סגור
-            </button>
+            <button id="btn-ok-action" class="w-full mt-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors">סגור</button>
         </div>
     </div>
 
-    <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-lg transition-transform duration-300 translate-y-24 opacity-0 z-50 flex items-center gap-3">
-        <i id="toast-icon" class="fas fa-info-circle"></i>
-        <span id="toast-message">הודעה מערכת</span>
+        <i id="toast-icon" class="fas fa-info-circle"></i><span id="toast-message"></span>
     </div>
 
-    <!-- Firebase Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // הנה הנתונים שלך שהושתלו!
+        // פרטי החיבור המדויקים שלך לפיירבייס!
         const firebaseConfig = {
             apiKey: "AIzaSyDorew1-ZzF1fUgDLBe1p22tEk5V7ArIG8",
             authDomain: "yovalim-seats.firebaseapp.com",
@@ -330,371 +184,167 @@
             measurementId: "G-EB5Q4LM94B"
         };
         
-        let app, db, auth;
-        let currentUser = null;
-        let seatsData = {}; 
-        let currentSelectedSeatId = null; 
-        
+        let app, db, auth, currentUser = null, seatsData = {}, currentSelectedSeatId = null; 
         const COLLECTION_PUBLIC_SEATS = 'seats';
 
-        const loadingIndicator = document.getElementById('loading-indicator');
-        const authStatus = document.getElementById('auth-status');
-        const synagogueContainer = document.getElementById('synagogue-container');
-        const totalSeatsCountEl = document.getElementById('total-seats-count');
+        const dom = {
+            loading: document.getElementById('loading-indicator'),
+            authStatus: document.getElementById('auth-status'),
+            container: document.getElementById('synagogue-container'),
+            count: document.getElementById('total-seats-count'),
+            selModal: document.getElementById('selection-modal'),
+            selContent: document.getElementById('modal-content'),
+            selSeat: document.getElementById('modal-seat-number'),
+            inpName: document.getElementById('occupant-name'),
+            btnConf: document.getElementById('btn-confirm-seat'),
+            btnCanc: document.getElementById('btn-cancel-seat'),
+            btnX: document.getElementById('btn-close-modal'),
+            errName: document.getElementById('name-error'),
+            actModal: document.getElementById('action-modal'),
+            actContent: document.getElementById('action-modal-content'),
+            actSeat: document.getElementById('action-seat-number'),
+            actName: document.getElementById('action-occupant-name'),
+            actOwner: document.getElementById('owner-actions'),
+            btnRel: document.getElementById('btn-release-seat'),
+            btnOk: document.getElementById('btn-ok-action'),
+            btnActX: document.getElementById('btn-close-action-modal')
+        };
         
-        const selectionModal = document.getElementById('selection-modal');
-        const modalContent = document.getElementById('modal-content');
-        const modalSeatNumber = document.getElementById('modal-seat-number');
-        const occupantNameInput = document.getElementById('occupant-name');
-        const btnConfirmSeat = document.getElementById('btn-confirm-seat');
-        const btnCancelSeat = document.getElementById('btn-cancel-seat');
-        const btnCloseModal = document.getElementById('btn-close-modal');
-        const nameError = document.getElementById('name-error');
+        let seatCounter = 1;
 
-        const actionModal = document.getElementById('action-modal');
-        const actionModalContent = document.getElementById('action-modal-content');
-        const actionSeatNumber = document.getElementById('action-seat-number');
-        const actionOccupantName = document.getElementById('action-occupant-name');
-        const ownerActions = document.getElementById('owner-actions');
-        const btnReleaseSeat = document.getElementById('btn-release-seat');
-        const btnOkAction = document.getElementById('btn-ok-action');
-        const btnCloseActionModal = document.getElementById('btn-close-action-modal');
-        
-        let globalSeatCounter = 1;
-
-        function renderGroup(containerId, rows, seatsPerRow, direction) {
-            const container = document.getElementById(containerId);
-            if(!container) return;
+        function renderGroup(id, rows, cols, dir) {
+            const cont = document.getElementById(id);
+            if(!cont) return;
+            const wrap = document.createElement('div');
             
-            const groupWrap = document.createElement('div');
-            
-            if (direction === 'south') {
-                groupWrap.className = 'flex flex-col gap-5'; 
-                for(let r = 0; r < rows; r++) {
-                    const rowWrap = document.createElement('div');
-                    rowWrap.className = 'flex flex-col items-center';
-                    
-                    const desk = document.createElement('div'); 
-                    desk.className = 'desk-horizontal';
-                    
-                    const seats = document.createElement('div'); 
-                    seats.className = 'flex gap-2 mt-2';
-                    
-                    for(let s = 0; s < seatsPerRow; s++) {
-                        seats.appendChild(createSeatElement(globalSeatCounter++));
-                    }
-                    
-                    rowWrap.appendChild(desk);
-                    rowWrap.appendChild(seats);
-                    groupWrap.appendChild(rowWrap);
+            if (dir === 'south') {
+                wrap.className = 'flex flex-col gap-5'; 
+                for(let r=0; r<rows; r++) {
+                    const rWrap = document.createElement('div'); rWrap.className = 'flex flex-col items-center';
+                    const desk = document.createElement('div'); desk.className = 'desk-horizontal';
+                    const seats = document.createElement('div'); seats.className = 'flex gap-2 mt-2';
+                    for(let s=0; s<cols; s++) seats.appendChild(createSeat(seatCounter++));
+                    rWrap.appendChild(desk); rWrap.appendChild(seats); wrap.appendChild(rWrap);
                 }
-            } 
-            else if (direction === 'face-west' || direction === 'face-east') {
-                groupWrap.className = 'flex gap-6'; 
-                for(let r = 0; r < rows; r++) {
-                    const rowWrap = document.createElement('div');
-                    rowWrap.className = 'flex items-center gap-2'; 
-                    
-                    const desk = document.createElement('div'); 
-                    desk.className = 'desk-vertical';
-                    
-                    const seats = document.createElement('div'); 
-                    seats.className = 'flex flex-col gap-2';
-                    
-                    for(let s = 0; s < seatsPerRow; s++) {
-                        seats.appendChild(createSeatElement(globalSeatCounter++));
-                    }
-                    
-                    if (direction === 'face-west') {
-                        rowWrap.appendChild(desk); 
-                        rowWrap.appendChild(seats);
-                    } else {
-                        rowWrap.appendChild(seats); 
-                        rowWrap.appendChild(desk);
-                    }
-                    
-                    groupWrap.appendChild(rowWrap);
+            } else {
+                wrap.className = 'flex gap-6';
+                for(let r=0; r<rows; r++) {
+                    const rWrap = document.createElement('div'); rWrap.className = 'flex items-center gap-2';
+                    const desk = document.createElement('div'); desk.className = 'desk-vertical';
+                    const seats = document.createElement('div'); seats.className = 'flex flex-col gap-2';
+                    for(let s=0; s<cols; s++) seats.appendChild(createSeat(seatCounter++));
+                    if (dir === 'face-west') { rWrap.appendChild(desk); rWrap.appendChild(seats); } 
+                    else { rWrap.appendChild(seats); rWrap.appendChild(desk); }
+                    wrap.appendChild(rWrap);
                 }
             }
-            container.appendChild(groupWrap);
+            cont.appendChild(wrap);
         }
 
-        function buildSynagogueLayout() {
-            globalSeatCounter = 1; 
+        function createSeat(id) {
+            const el = document.createElement('div');
+            el.className = 'seat available'; el.id = `seat-${id}`; el.innerText = id;
+            el.onclick = () => handleSeat(id);
+            return el;
+        }
 
-            // Right side (Faces East)
+        function buildLayout() {
+            seatCounter = 1;
             renderGroup('g1', 3, 3, 'face-east');
             renderGroup('g2', 3, 4, 'face-east');
             renderGroup('g3', 2, 3, 'face-east');
             renderGroup('g4', 2, 5, 'face-east');
-            
-            // Left side (Faces South)
             renderGroup('g5', 3, 4, 'south');
             renderGroup('g6', 3, 4, 'south');
-            
-            // East side (Faces West)
             renderGroup('g7', 2, 3, 'face-west');
             renderGroup('g8', 2, 3, 'face-west');
             renderGroup('g9', 3, 5, 'face-west');
             renderGroup('g10', 3, 5, 'face-west');
-            
-            // Center
             renderGroup('g11', 4, 5, 'south');
-
-            totalSeatsCountEl.innerText = globalSeatCounter - 1;
+            dom.count.innerText = seatCounter - 1;
         }
 
-        function createSeatElement(seatId) {
-            const seat = document.createElement('div');
-            seat.className = 'seat available';
-            seat.id = `seat-${seatId}`;
-            seat.innerText = seatId;
-            seat.dataset.seatId = seatId;
-            seat.dataset.status = 'available';
-            seat.addEventListener('click', () => handleSeatClick(seatId));
-            return seat;
-        }
-
-        function handleSeatClick(seatId) {
-            if (!currentUser) {
-                showToast("אנא המתן להתחברות למערכת", "error");
-                return;
-            }
-
-            const seatData = seatsData[seatId];
-            const isAvailable = !seatData || seatData.status === 'available';
-
-            if (isAvailable) {
-                currentSelectedSeatId = seatId;
-                modalSeatNumber.innerText = seatId;
-                occupantNameInput.value = ''; 
-                nameError.classList.add('hidden');
-                openModal(selectionModal, modalContent);
-                setTimeout(() => occupantNameInput.focus(), 100);
+        function handleSeat(id) {
+            if (!currentUser) return showToast("ממתין להתחברות...", "error");
+            const data = seatsData[id];
+            if (!data || data.status === 'available') {
+                currentSelectedSeatId = id; dom.selSeat.innerText = id; dom.inpName.value = ''; dom.errName.classList.add('hidden');
+                openModal(dom.selModal, dom.selContent); setTimeout(() => dom.inpName.focus(), 100);
             } else {
-                currentSelectedSeatId = seatId;
-                actionSeatNumber.innerText = seatId;
-                actionOccupantName.innerText = seatData.occupantName;
-                
-                if (seatData.userId === currentUser.uid) {
-                    ownerActions.classList.remove('hidden');
-                } else {
-                    ownerActions.classList.add('hidden');
-                }
-                
-                openModal(actionModal, actionModalContent);
+                currentSelectedSeatId = id; dom.actSeat.innerText = id; dom.actName.innerText = data.occupantName;
+                data.userId === currentUser.uid ? dom.actOwner.classList.remove('hidden') : dom.actOwner.classList.add('hidden');
+                openModal(dom.actModal, dom.actContent);
             }
         }
 
-        function openModal(modalEl, contentEl) {
-            modalEl.classList.remove('hidden');
-            setTimeout(() => {
-                modalEl.classList.remove('opacity-0');
-                contentEl.classList.remove('scale-95');
-                contentEl.classList.add('scale-100');
-            }, 10);
+        function openModal(m, c) { m.classList.remove('hidden'); setTimeout(() => { m.classList.remove('opacity-0'); c.classList.remove('scale-95'); c.classList.add('scale-100'); }, 10); }
+        function closeModal(m, c) { m.classList.add('opacity-0'); c.classList.remove('scale-100'); c.classList.add('scale-95'); setTimeout(() => { m.classList.add('hidden'); currentSelectedSeatId = null; }, 300); }
+        function showToast(msg, type="info") {
+            const t = document.getElementById('toast'), tm = document.getElementById('toast-message'), ti = document.getElementById('toast-icon');
+            tm.innerText = msg; t.className = `fixed bottom-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full shadow-lg transition-all duration-300 z-50 flex items-center gap-3 text-white`;
+            if(type==="success") { t.classList.add('bg-emerald-600'); ti.className="fas fa-check-circle"; }
+            else if(type==="error") { t.classList.add('bg-red-600'); ti.className="fas fa-exclamation-circle"; }
+            else { t.classList.add('bg-gray-800'); ti.className="fas fa-info-circle"; }
+            t.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => t.classList.add('translate-y-24', 'opacity-0'), 3000);
         }
 
-        function closeModal(modalEl, contentEl) {
-            modalEl.classList.add('opacity-0');
-            contentEl.classList.remove('scale-100');
-            contentEl.classList.add('scale-95');
-            setTimeout(() => {
-                modalEl.classList.add('hidden');
-                currentSelectedSeatId = null;
-            }, 300);
-        }
+        dom.btnCanc.onclick = () => closeModal(dom.selModal, dom.selContent); dom.btnX.onclick = () => closeModal(dom.selModal, dom.selContent);
+        dom.btnOk.onclick = () => closeModal(dom.actModal, dom.actContent); dom.btnActX.onclick = () => closeModal(dom.actModal, dom.actContent);
+        dom.selModal.onclick = (e) => { if (e.target === dom.selModal) closeModal(dom.selModal, dom.selContent); };
+        dom.actModal.onclick = (e) => { if (e.target === dom.actModal) closeModal(dom.actModal, dom.actContent); };
+        dom.inpName.onkeypress = (e) => { if (e.key === 'Enter') dom.btnConf.click(); };
 
-        function showToast(message, type = "info") {
-            const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toast-message');
-            const toastIcon = document.getElementById('toast-icon');
-
-            toastMessage.innerText = message;
-            toast.className = `fixed bottom-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full shadow-lg transition-all duration-300 z-50 flex items-center gap-3 text-white`;
-            
-            if (type === "success") {
-                toast.classList.add('bg-emerald-600');
-                toastIcon.className = "fas fa-check-circle";
-            } else if (type === "error") {
-                toast.classList.add('bg-red-600');
-                toastIcon.className = "fas fa-exclamation-circle";
-            } else {
-                toast.classList.add('bg-gray-800');
-                toastIcon.className = "fas fa-info-circle";
-            }
-
-            toast.classList.remove('translate-y-24', 'opacity-0');
-            setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3000);
-        }
-
-        btnCancelSeat.addEventListener('click', () => closeModal(selectionModal, modalContent));
-        btnCloseModal.addEventListener('click', () => closeModal(selectionModal, modalContent));
-        btnOkAction.addEventListener('click', () => closeModal(actionModal, actionModalContent));
-        btnCloseActionModal.addEventListener('click', () => closeModal(actionModal, actionModalContent));
-
-        selectionModal.addEventListener('click', (e) => {
-            if (e.target === selectionModal) closeModal(selectionModal, modalContent);
-        });
-        actionModal.addEventListener('click', (e) => {
-            if (e.target === actionModal) closeModal(actionModal, actionModalContent);
-        });
-
-        occupantNameInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                btnConfirmSeat.click();
-            }
-        });
-
-        btnConfirmSeat.addEventListener('click', async () => {
-            if (!currentUser || !currentSelectedSeatId) return;
-
-            const name = occupantNameInput.value.trim();
-            if (name.length < 2) {
-                nameError.classList.remove('hidden');
-                return;
-            }
-
-            const originalBtnText = btnConfirmSeat.innerHTML;
-            btnConfirmSeat.innerHTML = '<i class="fas fa-spinner fa-spin"></i> שומר...';
-            btnConfirmSeat.disabled = true;
-
+        dom.btnConf.onclick = async () => {
+            const name = dom.inpName.value.trim();
+            if (name.length < 2) return dom.errName.classList.remove('hidden');
+            const orig = dom.btnConf.innerHTML; dom.btnConf.innerHTML = '<i class="fas fa-spinner fa-spin"></i> שומר...'; dom.btnConf.disabled = true;
             try {
-                const seatDocRef = doc(db, COLLECTION_PUBLIC_SEATS, currentSelectedSeatId.toString());
-                const seatDataPayload = {
-                    status: 'occupied',
-                    occupantName: name,
-                    userId: currentUser.uid,
-                    timestamp: new Date().toISOString()
-                };
+                await setDoc(doc(db, COLLECTION_PUBLIC_SEATS, currentSelectedSeatId.toString()), { status: 'occupied', occupantName: name, userId: currentUser.uid, timestamp: new Date().toISOString() });
+                showToast(`מושב ${currentSelectedSeatId} נשמר!`, "success"); closeModal(dom.selModal, dom.selContent);
+            } catch (err) { showToast("שגיאה בשמירה. ודא הרשאות במסד הנתונים.", "error"); } 
+            finally { dom.btnConf.innerHTML = orig; dom.btnConf.disabled = false; }
+        };
 
-                await setDoc(seatDocRef, seatDataPayload);
-                showToast(`מושב ${currentSelectedSeatId} נשמר בהצלחה עבור ${name}`, "success");
-                closeModal(selectionModal, modalContent);
-
-            } catch (error) {
-                console.error("Error saving seat:", error);
-                showToast("שגיאה בשמירת המושב. נסה שוב.", "error");
-            } finally {
-                btnConfirmSeat.innerHTML = originalBtnText;
-                btnConfirmSeat.disabled = false;
-            }
-        });
-
-        btnReleaseSeat.addEventListener('click', async () => {
-             if (!currentUser || !currentSelectedSeatId) return;
-
-            const originalBtnText = btnReleaseSeat.innerHTML;
-            btnReleaseSeat.innerHTML = '<i class="fas fa-spinner fa-spin"></i> מבטל...';
-            btnReleaseSeat.disabled = true;
-
+        dom.btnRel.onclick = async () => {
+            const orig = dom.btnRel.innerHTML; dom.btnRel.innerHTML = '<i class="fas fa-spinner fa-spin"></i> מבטל...'; dom.btnRel.disabled = true;
             try {
-                const seatDocRef = doc(db, COLLECTION_PUBLIC_SEATS, currentSelectedSeatId.toString());
-                await deleteDoc(seatDocRef);
-                showToast(`שמירת מושב ${currentSelectedSeatId} בוטלה`, "info");
-                closeModal(actionModal, actionModalContent);
+                await deleteDoc(doc(db, COLLECTION_PUBLIC_SEATS, currentSelectedSeatId.toString()));
+                showToast(`מושב שוחרר`, "info"); closeModal(dom.actModal, dom.actContent);
+            } catch (err) { showToast("שגיאה בשחרור.", "error"); } 
+            finally { dom.btnRel.innerHTML = orig; dom.btnRel.disabled = false; }
+        };
 
-            } catch (error) {
-                console.error("Error releasing seat:", error);
-                showToast("שגיאה בביטול המושב. נסה שוב.", "error");
-            } finally {
-                btnReleaseSeat.innerHTML = originalBtnText;
-                btnReleaseSeat.disabled = false;
-            }
-        });
-
-        function setupRealtimeSync() {
-            const seatsColRef = collection(db, COLLECTION_PUBLIC_SEATS);
-            
-            onSnapshot(seatsColRef, (snapshot) => {
-                const updatedSeatsData = {};
-                snapshot.forEach((doc) => {
-                    updatedSeatsData[doc.id] = doc.data();
-                });
-                seatsData = updatedSeatsData;
-                updateUIBasedOnData();
-            }, (error) => {
-                console.error("Real-time sync error:", error);
-                showToast("שגיאה בסנכרון נתונים. נא לרענן את הדף.", "error");
+        function sync() {
+            onSnapshot(collection(db, COLLECTION_PUBLIC_SEATS), (snap) => {
+                seatsData = {}; snap.forEach(d => seatsData[d.id] = d.data()); updateUI();
             });
         }
 
-        function updateUIBasedOnData() {
-            for (let i = 1; i < globalSeatCounter; i++) {
-                const seatId = i.toString();
-                const seatEl = document.getElementById(`seat-${seatId}`);
-                if (!seatEl) continue;
-
-                const data = seatsData[seatId];
-                seatEl.className = 'seat';
-                seatEl.removeAttribute('data-name'); 
-
-                if (data && data.status === 'occupied') {
-                    seatEl.classList.add('occupied');
-                    seatEl.dataset.name = data.occupantName; 
-                    
-                    if (currentUser && data.userId === currentUser.uid) {
-                        seatEl.classList.remove('occupied');
-                        seatEl.classList.add('selected');
-                    }
-                } else {
-                    seatEl.classList.add('available');
-                }
+        function updateUI() {
+            for (let i = 1; i < seatCounter; i++) {
+                const el = document.getElementById(`seat-${i}`);
+                if (!el) continue;
+                const d = seatsData[i];
+                el.className = 'seat'; el.removeAttribute('data-name');
+                if (d && d.status === 'occupied') {
+                    el.classList.add(currentUser && d.userId === currentUser.uid ? 'selected' : 'occupied');
+                    el.dataset.name = d.occupantName;
+                } else { el.classList.add('available'); }
             }
         }
 
-        async function initializeAppSystem() {
-            if (!firebaseConfig || firebaseConfig.apiKey.includes("הכנס-כאן")) {
-                authStatus.classList.remove('hidden');
-                authStatus.innerText = "שגיאה: חסרות הגדרות Firebase.";
-                loadingIndicator.classList.add('hidden');
-                return;
-            }
-
+        async function init() {
             try {
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-
-                buildSynagogueLayout();
-
+                app = initializeApp(firebaseConfig); db = getFirestore(app); auth = getAuth(app);
+                buildLayout();
                 onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        currentUser = user;
-                        setupRealtimeSync();
-                        loadingIndicator.classList.add('hidden');
-                        synagogueContainer.classList.remove('hidden');
-                    } else {
-                        authenticateUser();
-                    }
+                    if (user) { currentUser = user; sync(); dom.loading.classList.add('hidden'); dom.container.classList.remove('hidden'); } 
+                    else { signInAnonymously(auth).catch(e => { dom.authStatus.innerText = "שגיאת התחברות אנונימית"; dom.authStatus.classList.remove('hidden'); dom.loading.classList.add('hidden'); }); }
                 });
-
-                if (!auth.currentUser) {
-                     authenticateUser();
-                }
-
-            } catch (error) {
-                console.error("Initialization error:", error);
-                authStatus.classList.remove('hidden');
-                authStatus.innerText = "שגיאה באתחול המערכת. אנא ודא שאישרת 'Anonymous Authentication' ב-Firebase.";
-                loadingIndicator.classList.add('hidden');
-            }
+            } catch (err) { dom.authStatus.innerText = "שגיאה כללית באתחול"; dom.authStatus.classList.remove('hidden'); dom.loading.classList.add('hidden'); }
         }
 
-        async function authenticateUser() {
-            try {
-                await signInAnonymously(auth);
-            } catch (error) {
-                console.error("Auth error:", error);
-                authStatus.classList.remove('hidden');
-                authStatus.innerText = "שגיאת התחברות ל-Firebase. ודא שהפעלת Authentication מסוג Anonymous בפרויקט שלך.";
-                loadingIndicator.classList.add('hidden');
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', initializeAppSystem);
-
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>

@@ -94,7 +94,7 @@
             box-shadow: 0 20px 40px -10px rgba(0,0,0,0.05);
             overflow-x: auto; 
             border: 1px solid #f1f5f9;
-            min-width: 800px; /* Ensures layout doesn't break on small screens */
+            min-width: 800px; 
         }
 
         /* Tooltip */
@@ -114,7 +114,7 @@
             pointer-events: none;
         }
 
-        /* Modal Styles (Unchanged) */
+        /* Modal Styles */
         .modal-overlay {
             background-color: rgba(15, 23, 42, 0.4);
             backdrop-filter: blur(8px);
@@ -316,35 +316,32 @@
     <!-- Firebase Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, onSnapshot, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Environment variables provided by the system
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'synagogue-seating-app';
-        let firebaseConfig;
+        // הנה הנתונים שלך שהושתלו!
+        const firebaseConfig = {
+            apiKey: "AIzaSyDorew1-ZzF1fUgDLBe1p22tEk5V7ArIG8",
+            authDomain: "yovalim-seats.firebaseapp.com",
+            projectId: "yovalim-seats",
+            storageBucket: "yovalim-seats.firebasestorage.app",
+            messagingSenderId: "672379786566",
+            appId: "1:672379786566:web:ced61727ca231bc8cc0147",
+            measurementId: "G-EB5Q4LM94B"
+        };
         
-        try {
-            firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-        } catch (e) {
-            console.error("Error parsing firebase config", e);
-        }
-
-        // State variables
         let app, db, auth;
         let currentUser = null;
-        let seatsData = {}; // Local cache of seat statuses
-        let currentSelectedSeatId = null; // Seat currently being interacted with in a modal
+        let seatsData = {}; 
+        let currentSelectedSeatId = null; 
         
-        // Define collections following MANDATORY RULE 1
         const COLLECTION_PUBLIC_SEATS = 'seats';
 
-        // DOM Elements
         const loadingIndicator = document.getElementById('loading-indicator');
         const authStatus = document.getElementById('auth-status');
         const synagogueContainer = document.getElementById('synagogue-container');
         const totalSeatsCountEl = document.getElementById('total-seats-count');
         
-        // Modal Elements
         const selectionModal = document.getElementById('selection-modal');
         const modalContent = document.getElementById('modal-content');
         const modalSeatNumber = document.getElementById('modal-seat-number');
@@ -354,7 +351,6 @@
         const btnCloseModal = document.getElementById('btn-close-modal');
         const nameError = document.getElementById('name-error');
 
-        // Action Modal Elements
         const actionModal = document.getElementById('action-modal');
         const actionModalContent = document.getElementById('action-modal-content');
         const actionSeatNumber = document.getElementById('action-seat-number');
@@ -366,14 +362,12 @@
         
         let globalSeatCounter = 1;
 
-        // Group Rendering Logic
         function renderGroup(containerId, rows, seatsPerRow, direction) {
             const container = document.getElementById(containerId);
             if(!container) return;
             
             const groupWrap = document.createElement('div');
             
-            // Standard layout (facing Ark / South)
             if (direction === 'south') {
                 groupWrap.className = 'flex flex-col gap-5'; 
                 for(let r = 0; r < rows; r++) {
@@ -395,9 +389,8 @@
                     groupWrap.appendChild(rowWrap);
                 }
             } 
-            // Layout for East/West facing (Vertical columns of seats)
             else if (direction === 'face-west' || direction === 'face-east') {
-                groupWrap.className = 'flex gap-6'; // Vertical columns side-by-side
+                groupWrap.className = 'flex gap-6'; 
                 for(let r = 0; r < rows; r++) {
                     const rowWrap = document.createElement('div');
                     rowWrap.className = 'flex items-center gap-2'; 
@@ -412,13 +405,10 @@
                         seats.appendChild(createSeatElement(globalSeatCounter++));
                     }
                     
-                    // RTL Layout: Right child is appended first.
                     if (direction === 'face-west') {
-                        // Facing West (Right). Desk on Right.
                         rowWrap.appendChild(desk); 
                         rowWrap.appendChild(seats);
                     } else {
-                        // Facing East (Left). Desk on Left.
                         rowWrap.appendChild(seats); 
                         rowWrap.appendChild(desk);
                     }
@@ -430,54 +420,41 @@
         }
 
         function buildSynagogueLayout() {
-            globalSeatCounter = 1; // Reset counter
+            globalSeatCounter = 1; 
 
-            // Build strictly based on the user's explicit sequential logic (Groups 1 to 11)
-            
-            // 1. Right of Ark (West) - 3x3 - Faces East
+            // Right side (Faces East)
             renderGroup('g1', 3, 3, 'face-east');
-            // 2. Moving North - 4x3 - Faces East
             renderGroup('g2', 3, 4, 'face-east');
-            // 3. Further North near door - 3x2 - Faces East
             renderGroup('g3', 2, 3, 'face-east');
-            // 4. Going down - 5x2 - Faces East
             renderGroup('g4', 2, 5, 'face-east');
-            // 5. Left (Center North) - Backs face North, so face South - 4x3
+            
+            // Left side (Faces South)
             renderGroup('g5', 3, 4, 'south');
-            // 6. Left again - 4x3 - Faces South
             renderGroup('g6', 3, 4, 'south');
-            // 7. Eastern edge - Faces West - 3x2
+            
+            // East side (Faces West)
             renderGroup('g7', 2, 3, 'face-west');
-            // 8. Going South along East edge - Faces West - 3x2
             renderGroup('g8', 2, 3, 'face-west');
-            // 9. Further South - Faces West - 5x3
             renderGroup('g9', 3, 5, 'face-west');
-            // 10. South near East Door - Faces West - 5x3
             renderGroup('g10', 3, 5, 'face-west');
-            // 11. Center between Ark and Bimah - Faces South - 5x4
+            
+            // Center
             renderGroup('g11', 4, 5, 'south');
 
-            // Update total counter in UI
             totalSeatsCountEl.innerText = globalSeatCounter - 1;
         }
 
-        // Create individual seat DOM element
         function createSeatElement(seatId) {
             const seat = document.createElement('div');
             seat.className = 'seat available';
             seat.id = `seat-${seatId}`;
             seat.innerText = seatId;
-            // Default data attributes
             seat.dataset.seatId = seatId;
             seat.dataset.status = 'available';
-            
-            // Add click listener
             seat.addEventListener('click', () => handleSeatClick(seatId));
-            
             return seat;
         }
 
-        // UI Interaction Handlers
         function handleSeatClick(seatId) {
             if (!currentUser) {
                 showToast("אנא המתן להתחברות למערכת", "error");
@@ -488,20 +465,17 @@
             const isAvailable = !seatData || seatData.status === 'available';
 
             if (isAvailable) {
-                // Open selection modal
                 currentSelectedSeatId = seatId;
                 modalSeatNumber.innerText = seatId;
-                occupantNameInput.value = ''; // Clear previous input
+                occupantNameInput.value = ''; 
                 nameError.classList.add('hidden');
                 openModal(selectionModal, modalContent);
                 setTimeout(() => occupantNameInput.focus(), 100);
             } else {
-                // Open action/info modal
                 currentSelectedSeatId = seatId;
                 actionSeatNumber.innerText = seatId;
                 actionOccupantName.innerText = seatData.occupantName;
                 
-                // Check if current user owns this seat
                 if (seatData.userId === currentUser.uid) {
                     ownerActions.classList.remove('hidden');
                 } else {
@@ -512,10 +486,8 @@
             }
         }
 
-        // Modal utility functions
         function openModal(modalEl, contentEl) {
             modalEl.classList.remove('hidden');
-            // Slight delay for transition to work
             setTimeout(() => {
                 modalEl.classList.remove('opacity-0');
                 contentEl.classList.remove('scale-95');
@@ -527,22 +499,18 @@
             modalEl.classList.add('opacity-0');
             contentEl.classList.remove('scale-100');
             contentEl.classList.add('scale-95');
-            
             setTimeout(() => {
                 modalEl.classList.add('hidden');
                 currentSelectedSeatId = null;
-            }, 300); // match transition duration
+            }, 300);
         }
 
-        // Toast Notification System
         function showToast(message, type = "info") {
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toast-message');
             const toastIcon = document.getElementById('toast-icon');
 
             toastMessage.innerText = message;
-            
-            // Set colors and icons based on type
             toast.className = `fixed bottom-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full shadow-lg transition-all duration-300 z-50 flex items-center gap-3 text-white`;
             
             if (type === "success") {
@@ -556,23 +524,15 @@
                 toastIcon.className = "fas fa-info-circle";
             }
 
-            // Show toast
             toast.classList.remove('translate-y-24', 'opacity-0');
-
-            // Hide after 3 seconds
-            setTimeout(() => {
-                toast.classList.add('translate-y-24', 'opacity-0');
-            }, 3000);
+            setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0'), 3000);
         }
 
-        // Setup Modal Event Listeners
         btnCancelSeat.addEventListener('click', () => closeModal(selectionModal, modalContent));
         btnCloseModal.addEventListener('click', () => closeModal(selectionModal, modalContent));
-        
         btnOkAction.addEventListener('click', () => closeModal(actionModal, actionModalContent));
         btnCloseActionModal.addEventListener('click', () => closeModal(actionModal, actionModalContent));
 
-        // Close modals on outside click
         selectionModal.addEventListener('click', (e) => {
             if (e.target === selectionModal) closeModal(selectionModal, modalContent);
         });
@@ -580,7 +540,6 @@
             if (e.target === actionModal) closeModal(actionModal, actionModalContent);
         });
 
-        // Allow 'Enter' key in input field
         occupantNameInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -588,7 +547,6 @@
             }
         });
 
-        // Firebase Data Operations
         btnConfirmSeat.addEventListener('click', async () => {
             if (!currentUser || !currentSelectedSeatId) return;
 
@@ -598,16 +556,12 @@
                 return;
             }
 
-            // Disable button during process
             const originalBtnText = btnConfirmSeat.innerHTML;
             btnConfirmSeat.innerHTML = '<i class="fas fa-spinner fa-spin"></i> שומר...';
             btnConfirmSeat.disabled = true;
 
             try {
-                // Determine the correct public path according to MANDATORY RULE 1
-                // /artifacts/{appId}/public/data/{collectionName}/{documentId}
-                const seatDocRef = doc(db, 'artifacts', appId, 'public', 'data', COLLECTION_PUBLIC_SEATS, currentSelectedSeatId.toString());
-                
+                const seatDocRef = doc(db, COLLECTION_PUBLIC_SEATS, currentSelectedSeatId.toString());
                 const seatDataPayload = {
                     status: 'occupied',
                     occupantName: name,
@@ -616,7 +570,6 @@
                 };
 
                 await setDoc(seatDocRef, seatDataPayload);
-                
                 showToast(`מושב ${currentSelectedSeatId} נשמר בהצלחה עבור ${name}`, "success");
                 closeModal(selectionModal, modalContent);
 
@@ -632,17 +585,13 @@
         btnReleaseSeat.addEventListener('click', async () => {
              if (!currentUser || !currentSelectedSeatId) return;
 
-            // Disable button
             const originalBtnText = btnReleaseSeat.innerHTML;
             btnReleaseSeat.innerHTML = '<i class="fas fa-spinner fa-spin"></i> מבטל...';
             btnReleaseSeat.disabled = true;
 
             try {
-                const seatDocRef = doc(db, 'artifacts', appId, 'public', 'data', COLLECTION_PUBLIC_SEATS, currentSelectedSeatId.toString());
-                
-                // Delete the document to mark it available again
+                const seatDocRef = doc(db, COLLECTION_PUBLIC_SEATS, currentSelectedSeatId.toString());
                 await deleteDoc(seatDocRef);
-                
                 showToast(`שמירת מושב ${currentSelectedSeatId} בוטלה`, "info");
                 closeModal(actionModal, actionModalContent);
 
@@ -655,26 +604,16 @@
             }
         });
 
-        // Real-time synchronization
         function setupRealtimeSync() {
-            // Path: /artifacts/{appId}/public/data/{collectionName}
-            const seatsColRef = collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_PUBLIC_SEATS);
+            const seatsColRef = collection(db, COLLECTION_PUBLIC_SEATS);
             
-            // onSnapshot triggers immediately with current data, and then on any change
             onSnapshot(seatsColRef, (snapshot) => {
-                // Clear local cache to rebuild
                 const updatedSeatsData = {};
-                
                 snapshot.forEach((doc) => {
                     updatedSeatsData[doc.id] = doc.data();
                 });
-
-                // Update global state
                 seatsData = updatedSeatsData;
-                
-                // Update UI visually
                 updateUIBasedOnData();
-
             }, (error) => {
                 console.error("Real-time sync error:", error);
                 showToast("שגיאה בסנכרון נתונים. נא לרענן את הדף.", "error");
@@ -682,74 +621,55 @@
         }
 
         function updateUIBasedOnData() {
-            // Iterate over all DOM seats and update their class based on seatsData
             for (let i = 1; i < globalSeatCounter; i++) {
                 const seatId = i.toString();
                 const seatEl = document.getElementById(`seat-${seatId}`);
                 if (!seatEl) continue;
 
-                // Find span inside if it's rotated
-                const textEl = seatEl.querySelector('span') || seatEl;
-
                 const data = seatsData[seatId];
-
-                // Reset classes
                 seatEl.className = 'seat';
-                seatEl.removeAttribute('data-name'); // Remove tooltip
+                seatEl.removeAttribute('data-name'); 
 
                 if (data && data.status === 'occupied') {
-                    // Seat is taken
                     seatEl.classList.add('occupied');
-                    seatEl.dataset.name = data.occupantName; // Set tooltip
+                    seatEl.dataset.name = data.occupantName; 
                     
-                    // If current user is the owner, style it differently
                     if (currentUser && data.userId === currentUser.uid) {
                         seatEl.classList.remove('occupied');
                         seatEl.classList.add('selected');
                     }
                 } else {
-                    // Seat is available
                     seatEl.classList.add('available');
                 }
             }
         }
 
-        // Initialization Sequence
         async function initializeAppSystem() {
-            if (!firebaseConfig) {
+            if (!firebaseConfig || firebaseConfig.apiKey.includes("הכנס-כאן")) {
                 authStatus.classList.remove('hidden');
-                authStatus.innerText = "שגיאה: הגדרות מסד הנתונים חסרות.";
+                authStatus.innerText = "שגיאה: חסרות הגדרות Firebase.";
                 loadingIndicator.classList.add('hidden');
                 return;
             }
 
             try {
-                // Initialize Firebase
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
 
-                // Build the DOM layout first so elements exist
                 buildSynagogueLayout();
 
-                // Handle Authentication (MANDATORY RULE 3)
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
-                        // User is signed in
                         currentUser = user;
-                        // Start real-time sync only after auth is confirmed
                         setupRealtimeSync();
-                        
-                        // Hide loading, show UI
                         loadingIndicator.classList.add('hidden');
                         synagogueContainer.classList.remove('hidden');
                     } else {
-                        // User is signed out. Attempt login.
                         authenticateUser();
                     }
                 });
 
-                // Initial auth attempt if not already triggering onAuthStateChanged
                 if (!auth.currentUser) {
                      authenticateUser();
                 }
@@ -757,27 +677,22 @@
             } catch (error) {
                 console.error("Initialization error:", error);
                 authStatus.classList.remove('hidden');
-                authStatus.innerText = "שגיאה באתחול המערכת. אנא נסה שוב מאוחר יותר.";
+                authStatus.innerText = "שגיאה באתחול המערכת. אנא ודא שאישרת 'Anonymous Authentication' ב-Firebase.";
                 loadingIndicator.classList.add('hidden');
             }
         }
 
         async function authenticateUser() {
             try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
+                await signInAnonymously(auth);
             } catch (error) {
                 console.error("Auth error:", error);
                 authStatus.classList.remove('hidden');
-                authStatus.innerText = "שגיאת התחברות למערכת. עקב כך, לא ניתן לשמור מושבים.";
+                authStatus.innerText = "שגיאת התחברות ל-Firebase. ודא שהפעלת Authentication מסוג Anonymous בפרויקט שלך.";
                 loadingIndicator.classList.add('hidden');
             }
         }
 
-        // Start the app when DOM is ready
         document.addEventListener('DOMContentLoaded', initializeAppSystem);
 
     </script>

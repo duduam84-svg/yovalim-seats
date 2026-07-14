@@ -20,8 +20,8 @@
         .seat.available { background-color: #f0fdfa; color: #0f766e; border: 1px solid #ccfbf1; }
         .seat.available:hover { background-color: #ccfbf1; transform: scale(1.05); box-shadow: 0 4px 10px rgba(15, 118, 110, 0.15); border-color: #99f6e4; z-index: 10; }
         
-        .seat.occupied { background-color: #fff1f2; color: #be123c; border: 1px solid #fecdd3; cursor: not-allowed; opacity: 0.9; }
-        
+        .seat.pending { background-color: #fef08a; color: #854d0e; border: 1px solid #fde047; cursor: pointer; }
+        .seat.occupied { background-color: #fff1f2; color: #be123c; border: 1px solid #fecdd3; cursor: pointer; opacity: 0.95; }
         .seat.selected { background-color: #8b5cf6; color: white; border: 1px solid #7c3aed; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); }
 
         .desk-horizontal { height: 14px; width: 100%; background: linear-gradient(to bottom, #e2e8f0, #cbd5e1); border: 1px solid #94a3b8; border-radius: 4px; margin-bottom: 6px; }
@@ -31,31 +31,52 @@
 
         .seat[data-name]:hover::after { content: attr(data-name); position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%); background-color: rgba(15, 23, 42, 0.9); color: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; white-space: nowrap; z-index: 50; pointer-events: none; }
         .modal-overlay { background-color: rgba(15, 23, 42, 0.4); backdrop-filter: blur(8px); }
+
+        @keyframes flashSeat { 0% { transform: scale(1); box-shadow: 0 0 0 0px rgba(59, 130, 246, 0.7); } 50% { transform: scale(1.3); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); z-index: 100; border-color: blue; } 100% { transform: scale(1); box-shadow: 0 0 0 0px rgba(59, 130, 246, 0); } }
+        .seat.flash { animation: flashSeat 1.5s ease-out 3; background-color: #bfdbfe !important; color: #1e3a8a !important; border: 2px solid #2563eb !important; }
     </style>
 </head>
 <body class="min-h-screen text-slate-800 pb-10 bg-slate-50">
 
+    <!-- Admin Toolbar -->
+    <div id="admin-toolbar" class="hidden bg-slate-900 text-white text-sm py-2 px-4 flex justify-between items-center shadow-md z-40 relative">
+        <div class="font-bold text-amber-400"><i class="fas fa-crown ml-1"></i> ממשק מנהל פעיל</div>
+        <div class="flex gap-3">
+            <button id="btn-admin-export" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-1 rounded text-white transition-colors"><i class="fas fa-file-excel ml-1"></i> ייצא לאקסל</button>
+            <button id="btn-admin-lock" class="bg-rose-600 hover:bg-rose-500 px-3 py-1 rounded text-white transition-colors"><i class="fas fa-lock ml-1"></i> נעל מערכת</button>
+        </div>
+    </div>
+
+    <!-- Locked Banner -->
+    <div id="locked-banner" class="hidden bg-rose-600 text-white text-center py-2 font-bold shadow-md z-40 relative">
+        <i class="fas fa-lock ml-1"></i> המערכת נעולה לרישום כעת. ניתן לצפות במושבים בלבד.
+    </div>
+
     <header class="bg-white/80 backdrop-blur-lg border-b border-slate-200 sticky top-0 z-30 shadow-sm transition-all">
-        <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="text-center md:text-right">
-                <h1 class="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-teal-500 pb-1">בית כנסת יובלים דרום</h1>
-                <p class="text-slate-500 font-medium text-sm">מערכת בחירת מקומות ישיבה אונליין</p>
+        <div class="container mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="text-center md:text-right flex-1">
+                <h1 class="text-2xl md:text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-teal-500 pb-1">בית כנסת יובלים דרום</h1>
             </div>
-            <div class="flex gap-4 bg-slate-50 border border-slate-100 p-2.5 rounded-xl text-sm font-medium shadow-inner">
-                <div class="flex items-center gap-2"><div class="w-5 h-5 bg-teal-50 rounded-md border border-teal-200 shadow-sm"></div><span class="text-slate-600">פנוי</span></div>
-                <div class="flex items-center gap-2"><div class="w-5 h-5 bg-rose-50 rounded-md border border-rose-200 shadow-sm"></div><span class="text-slate-600">תפוס</span></div>
-                <div class="flex items-center gap-2"><div class="w-5 h-5 bg-purple-500 rounded-md border border-purple-600 shadow-sm"></div><span class="text-slate-600">שלי</span></div>
+            
+            <div class="relative w-full md:w-64">
+                <input type="text" id="search-input" placeholder="חיפוש מתפלל..." class="w-full pl-4 pr-10 py-2 border border-slate-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50">
+                <i class="fas fa-search absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+            </div>
+
+            <div class="flex gap-3 bg-slate-50 border border-slate-100 p-2 rounded-xl text-xs font-medium shadow-inner flex-wrap justify-center">
+                <div class="flex items-center gap-1"><div class="w-4 h-4 bg-teal-50 rounded border border-teal-200"></div><span class="text-slate-600">פנוי</span></div>
+                <div class="flex items-center gap-1"><div class="w-4 h-4 bg-yellow-200 rounded border border-yellow-300"></div><span class="text-slate-600">ממתין לתשלום</span></div>
+                <div class="flex items-center gap-1"><div class="w-4 h-4 bg-rose-50 rounded border border-rose-200"></div><span class="text-slate-600">שולם</span></div>
+                <div class="flex items-center gap-1"><div class="w-4 h-4 bg-purple-500 rounded border border-purple-600"></div><span class="text-slate-600">שלי</span></div>
             </div>
         </div>
     </header>
 
-    <main class="container mx-auto px-2 mt-8">
+    <main class="container mx-auto px-2 mt-6">
         <div id="loading-indicator" class="flex flex-col items-center justify-center py-20">
-            <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-900 mb-4"></div>
-            <p class="text-lg font-semibold text-gray-600">טוען את מפת המושבים...</p>
+            <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-900 mb-4"></div>
+            <p class="text-lg font-semibold text-gray-600">טוען נתונים מהענן...</p>
         </div>
-
-        <div id="auth-status" class="hidden text-center text-red-600 mb-4 font-bold bg-red-100 p-3 rounded-lg max-w-2xl mx-auto"></div>
 
         <div id="synagogue-container" class="hidden overflow-x-auto pb-8">
             <div class="synagogue-layout mx-auto max-w-[1200px] min-w-[1000px] relative">
@@ -70,14 +91,13 @@
 
                 <div class="flex justify-between w-full gap-8 px-6 relative z-0">
                     
-                    <!-- צד מערב (ימין) -->
                     <div class="flex flex-col items-end gap-12 w-[30%]">
                         <div id="g1" class="relative group-container"><span class="absolute -right-10 top-1/2 -translate-y-1/2 text-[10px] text-slate-300 font-bold -rotate-90 whitespace-nowrap">גוש 1</span></div>
                         <div id="g2" class="relative group-container"><span class="absolute -right-10 top-1/2 -translate-y-1/2 text-[10px] text-slate-300 font-bold -rotate-90 whitespace-nowrap">גוש 2</span></div>
                         
                         <div class="bg-slate-50 px-5 py-2.5 rounded-l-xl border border-r-0 border-slate-300 text-sm font-bold text-slate-600 shadow-sm flex items-center gap-2 -mr-6 my-2 z-10 w-max self-end relative right-[-24px]">
                             <i class="fas fa-door-open text-slate-400"></i>
-                            דלת כניסה (מערב)
+                            דלת (מערב)
                         </div>
 
                         <div class="flex flex-col items-end gap-10 mt-2">
@@ -86,7 +106,6 @@
                         </div>
                     </div>
 
-                    <!-- מרכז -->
                     <div class="flex flex-col items-center w-[40%] relative">
                         <div id="g11" class="mb-12 relative group-container"><span class="absolute -right-12 top-1/2 -translate-y-1/2 text-[10px] text-slate-300 font-bold -rotate-90 whitespace-nowrap">גוש 11</span></div>
                         
@@ -101,14 +120,13 @@
                         </div>
                     </div>
 
-                    <!-- צד מזרח (שמאל) -->
-                    <div class="flex flex-col items-start gap-12 w-[30%]">
-                        <div class="absolute top-10 left-0 bg-slate-50 px-5 py-2.5 rounded-r-xl border border-l-0 border-slate-300 text-sm font-bold text-slate-600 shadow-sm flex items-center gap-2 z-10">
+                    <div class="flex flex-col items-start gap-12 w-[30%] relative">
+                        <div class="absolute -top-12 left-0 bg-slate-50 px-5 py-2.5 rounded-r-xl border border-l-0 border-slate-300 text-sm font-bold text-slate-600 shadow-sm flex items-center gap-2 z-10">
                             <i class="fas fa-door-open text-slate-400"></i>
-                            דלת כניסה (מזרח)
+                            דלת (מזרח)
                         </div>
 
-                        <div id="g10" class="relative group-container mt-16"><span class="absolute -left-10 top-1/2 -translate-y-1/2 text-[10px] text-slate-300 font-bold rotate-90 whitespace-nowrap">גוש 10</span></div>
+                        <div id="g10" class="relative group-container mt-4"><span class="absolute -left-10 top-1/2 -translate-y-1/2 text-[10px] text-slate-300 font-bold rotate-90 whitespace-nowrap">גוש 10</span></div>
                         <div id="g9" class="relative group-container"><span class="absolute -left-10 top-1/2 -translate-y-1/2 text-[10px] text-slate-300 font-bold rotate-90 whitespace-nowrap">גוש 9</span></div>
                         
                         <div class="flex flex-col items-start gap-10 mt-6">
@@ -117,50 +135,69 @@
                         </div>
                     </div>
                 </div>
-                
-                <div class="w-full text-center mt-8 pb-6 text-slate-500 text-base font-medium">
-                    סה"כ מושבים במערכת: <span id="total-seats-count" class="font-bold text-slate-700 text-lg">0</span> / 123
-                </div>
             </div>
         </div>
     </main>
 
-    <!-- מודל בחירת מושב -->
+    <!-- מודל בחירת מושב (פנוי) -->
     <div id="selection-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-overlay opacity-0 transition-opacity duration-300">
-        <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4 transform scale-95 transition-transform duration-300" id="modal-content">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4 transform scale-95 transition-transform duration-300">
             <div class="flex justify-between items-center mb-4 border-b pb-3">
-                <h3 class="text-xl font-bold text-gray-800">בחירת מושב מספר <span id="modal-seat-number" class="text-blue-600 bg-blue-100 px-2 py-1 rounded"></span></h3>
-                <button id="btn-close-modal" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fas fa-times text-xl"></i></button>
+                <h3 class="text-xl font-bold text-gray-800">מושב מספר <span id="modal-seat-number" class="text-indigo-600 font-black"></span></h3>
+                <button onclick="closeModals()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div class="mb-4 bg-slate-50 p-3 rounded-lg border border-slate-100 text-sm">
+                <div class="flex justify-between mb-1"><span class="text-slate-500">סוג:</span><span id="modal-seat-type" class="font-semibold text-slate-800"></span></div>
+                <div class="flex justify-between"><span class="text-slate-500">מחיר:</span><span id="modal-seat-price" class="font-bold text-emerald-600"></span></div>
             </div>
             <div class="mb-6">
                 <label for="occupant-name" class="block text-sm font-medium text-gray-700 mb-2">שם מלא (יופיע על הכיסא):</label>
-                <input type="text" id="occupant-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="לדוגמא: ישראל ישראלי" required>
-                <p id="name-error" class="text-red-500 text-sm mt-1 hidden">נא להזין שם תקין.</p>
+                <input type="text" id="occupant-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all" placeholder="לדוגמא: ישראל ישראלי" required>
             </div>
             <div class="flex gap-3">
-                <button id="btn-confirm-seat" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors">שמור מקום זה</button>
-                <button id="btn-cancel-seat" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors">ביטול</button>
+                <button id="btn-confirm-seat" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded-lg transition-colors">תפוס מקום</button>
+                <button onclick="closeModals()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2.5 px-4 rounded-lg transition-colors">ביטול</button>
             </div>
         </div>
     </div>
 
-    <!-- מודל צפייה וביטול -->
+    <!-- מודל צפייה ופעולות (תפוס) -->
     <div id="action-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-overlay opacity-0 transition-opacity duration-300">
-        <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4 transform scale-95 transition-transform duration-300" id="action-modal-content">
-            <div class="flex justify-between items-center mb-4 border-b pb-3">
-                <h3 class="text-xl font-bold text-gray-800">מושב מספר <span id="action-seat-number" class="text-red-600 bg-red-100 px-2 py-1 rounded"></span></h3>
-                <button id="btn-close-action-modal" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fas fa-times text-xl"></i></button>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 transform scale-95 transition-transform duration-300 overflow-hidden">
+            <div class="bg-slate-800 px-6 py-4 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-white">מושב <span id="action-seat-number"></span></h3>
+                <button onclick="closeModals()" class="text-slate-300 hover:text-white"><i class="fas fa-times text-xl"></i></button>
             </div>
-            <div class="mb-6 text-center py-4 bg-gray-50 rounded-lg">
-                <p class="text-sm text-gray-500 mb-1">מושב זה שמור עבור:</p>
-                <p id="action-occupant-name" class="text-xl font-bold text-gray-900"></p>
+            
+            <div class="p-6">
+                <div class="text-center mb-6">
+                    <p class="text-sm text-gray-500 mb-1">שמור עבור:</p>
+                    <div id="action-occupant-name-display" class="text-2xl font-bold text-gray-900"></div>
+                    <input type="text" id="action-occupant-name-edit" class="hidden w-full text-center text-xl font-bold border-b-2 border-indigo-500 focus:outline-none py-1 mt-1">
+                    
+                    <div id="action-status-badge" class="inline-block mt-3 px-3 py-1 text-sm font-bold rounded-full"></div>
+                </div>
+                
+                <!-- פעולות משתמש רגיל -->
+                <div id="owner-actions" class="hidden mb-4">
+                    <button id="btn-release-seat" class="w-full bg-red-50 border border-red-200 hover:bg-red-100 text-red-600 font-bold py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+                        <i class="fas fa-trash-alt"></i> בטל את השמירה שלי
+                    </button>
+                </div>
+
+                <!-- כלי מנהל -->
+                <div id="admin-actions" class="hidden border-t border-slate-200 pt-4 mt-2">
+                    <p class="text-xs font-bold text-slate-400 mb-3 uppercase tracking-wider">פעולות מנהל</p>
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+                        <button id="btn-admin-toggle-payment" class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 font-bold py-2 rounded flex items-center justify-center gap-1 text-sm"><i class="fas fa-check-circle"></i> אשר תשלום</button>
+                        <button id="btn-admin-edit-name" class="bg-blue-100 text-blue-700 hover:bg-blue-200 font-bold py-2 rounded flex items-center justify-center gap-1 text-sm"><i class="fas fa-edit"></i> ערוך שם</button>
+                    </div>
+                    <button id="btn-admin-view-history" class="w-full bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold py-2 rounded flex items-center justify-center gap-2 text-sm mb-2"><i class="fas fa-history"></i> היסטוריית פעולות לכיסא זה</button>
+                    <button id="btn-admin-delete" class="w-full bg-red-600 text-white hover:bg-red-700 font-bold py-2 rounded flex items-center justify-center gap-2 text-sm"><i class="fas fa-eraser"></i> פנה כיסא (מחיקה)</button>
+                </div>
+                
+                <div id="history-container" class="hidden mt-4 bg-slate-50 p-3 rounded text-xs text-slate-600 h-32 overflow-y-auto border border-slate-200"></div>
             </div>
-            <div id="owner-actions" class="hidden">
-                <button id="btn-release-seat" class="w-full bg-red-50 border border-red-200 hover:bg-red-100 text-red-600 font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
-                    <i class="fas fa-trash-alt"></i> בטל את השמירה שלי
-                </button>
-            </div>
-            <button id="btn-ok-action" class="w-full mt-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors">סגור</button>
         </div>
     </div>
 
@@ -171,9 +208,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, deleteDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // פרטי החיבור המדויקים שלך לפיירבייס!
         const firebaseConfig = {
             apiKey: "AIzaSyDorew1-ZzF1fUgDLBe1p22tEk5V7ArIG8",
             authDomain: "yovalim-seats.firebaseapp.com",
@@ -184,37 +220,29 @@
             measurementId: "G-EB5Q4LM94B"
         };
         
-        let app, db, auth, currentUser = null, seatsData = {}, currentSelectedSeatId = null; 
-        const COLLECTION_PUBLIC_SEATS = 'seats';
+        let app, db, auth, currentUser = null, seatsData = {}, currentSelectedSeatId = null, isSystemLocked = false;
+        
+        // --- מערכת ניהול ותמחור ---
+        // האם המשתמש נכנס עם קישור מנהל? (בדוק אם הקישור מסתיים ב ?admin=1234)
+        const urlParams = new URLSearchParams(window.location.search);
+        const isAdmin = urlParams.get('admin') === '1234'; 
+        
+        // מושבים ללא סטנדר
+        const noShtenderSeats = [7,8,9, 25,26,27, 33,34,35,36,37, 62,63,64, 68,69,70, 104,105,106,107,108];
+        const getPrice = (id) => noShtenderSeats.includes(Number(id)) ? 1200 : 1450;
+        const getType = (id) => noShtenderSeats.includes(Number(id)) ? "ללא סטנדר" : "עם סטנדר";
 
+        // אלמנטים
         const dom = {
-            loading: document.getElementById('loading-indicator'),
-            authStatus: document.getElementById('auth-status'),
-            container: document.getElementById('synagogue-container'),
-            count: document.getElementById('total-seats-count'),
-            selModal: document.getElementById('selection-modal'),
-            selContent: document.getElementById('modal-content'),
-            selSeat: document.getElementById('modal-seat-number'),
-            inpName: document.getElementById('occupant-name'),
-            btnConf: document.getElementById('btn-confirm-seat'),
-            btnCanc: document.getElementById('btn-cancel-seat'),
-            btnX: document.getElementById('btn-close-modal'),
-            errName: document.getElementById('name-error'),
-            actModal: document.getElementById('action-modal'),
-            actContent: document.getElementById('action-modal-content'),
-            actSeat: document.getElementById('action-seat-number'),
-            actName: document.getElementById('action-occupant-name'),
-            actOwner: document.getElementById('owner-actions'),
-            btnRel: document.getElementById('btn-release-seat'),
-            btnOk: document.getElementById('btn-ok-action'),
-            btnActX: document.getElementById('btn-close-action-modal')
+            search: document.getElementById('search-input'),
+            adminBar: document.getElementById('admin-toolbar'),
+            lockBanner: document.getElementById('locked-banner')
         };
         
         let seatCounter = 1;
 
         function renderGroup(id, rows, cols, dir) {
-            const cont = document.getElementById(id);
-            if(!cont) return;
+            const cont = document.getElementById(id); if(!cont) return;
             const wrap = document.createElement('div');
             
             if (dir === 'south') {
@@ -244,107 +272,244 @@
         function createSeat(id) {
             const el = document.createElement('div');
             el.className = 'seat available'; el.id = `seat-${id}`; el.innerText = id;
-            el.onclick = () => handleSeat(id);
-            return el;
+            el.onclick = () => handleSeat(id); return el;
         }
 
         function buildLayout() {
             seatCounter = 1;
-            renderGroup('g1', 3, 3, 'face-east');
-            renderGroup('g2', 3, 4, 'face-east');
-            renderGroup('g3', 2, 3, 'face-east');
-            renderGroup('g4', 2, 5, 'face-east');
-            renderGroup('g5', 3, 4, 'south');
-            renderGroup('g6', 3, 4, 'south');
-            renderGroup('g7', 2, 3, 'face-west');
-            renderGroup('g8', 2, 3, 'face-west');
-            renderGroup('g9', 3, 5, 'face-west');
-            renderGroup('g10', 3, 5, 'face-west');
-            renderGroup('g11', 4, 5, 'south');
-            dom.count.innerText = seatCounter - 1;
+            renderGroup('g1', 3, 3, 'face-east'); renderGroup('g2', 3, 4, 'face-east'); renderGroup('g3', 2, 3, 'face-east');
+            renderGroup('g4', 2, 5, 'face-east'); renderGroup('g5', 3, 4, 'south'); renderGroup('g6', 3, 4, 'south');
+            renderGroup('g7', 2, 3, 'face-west'); renderGroup('g8', 2, 3, 'face-west'); renderGroup('g9', 3, 5, 'face-west');
+            renderGroup('g10', 3, 5, 'face-west'); renderGroup('g11', 4, 5, 'south');
         }
 
-        function handleSeat(id) {
-            if (!currentUser) return showToast("ממתין להתחברות...", "error");
-            const data = seatsData[id];
-            if (!data || data.status === 'available') {
-                currentSelectedSeatId = id; dom.selSeat.innerText = id; dom.inpName.value = ''; dom.errName.classList.add('hidden');
-                openModal(dom.selModal, dom.selContent); setTimeout(() => dom.inpName.focus(), 100);
-            } else {
-                currentSelectedSeatId = id; dom.actSeat.innerText = id; dom.actName.innerText = data.occupantName;
-                data.userId === currentUser.uid ? dom.actOwner.classList.remove('hidden') : dom.actOwner.classList.add('hidden');
-                openModal(dom.actModal, dom.actContent);
-            }
-        }
+        window.closeModals = () => {
+            document.getElementById('selection-modal').classList.add('opacity-0');
+            document.getElementById('action-modal').classList.add('opacity-0');
+            setTimeout(() => {
+                document.getElementById('selection-modal').classList.add('hidden');
+                document.getElementById('action-modal').classList.add('hidden');
+                document.getElementById('history-container').classList.add('hidden');
+                document.getElementById('action-occupant-name-edit').classList.add('hidden');
+                document.getElementById('action-occupant-name-display').classList.remove('hidden');
+                currentSelectedSeatId = null;
+            }, 300);
+        };
 
-        function openModal(m, c) { m.classList.remove('hidden'); setTimeout(() => { m.classList.remove('opacity-0'); c.classList.remove('scale-95'); c.classList.add('scale-100'); }, 10); }
-        function closeModal(m, c) { m.classList.add('opacity-0'); c.classList.remove('scale-100'); c.classList.add('scale-95'); setTimeout(() => { m.classList.add('hidden'); currentSelectedSeatId = null; }, 300); }
         function showToast(msg, type="info") {
             const t = document.getElementById('toast'), tm = document.getElementById('toast-message'), ti = document.getElementById('toast-icon');
             tm.innerText = msg; t.className = `fixed bottom-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full shadow-lg transition-all duration-300 z-50 flex items-center gap-3 text-white`;
             if(type==="success") { t.classList.add('bg-emerald-600'); ti.className="fas fa-check-circle"; }
-            else if(type==="error") { t.classList.add('bg-red-600'); ti.className="fas fa-exclamation-circle"; }
-            else { t.classList.add('bg-gray-800'); ti.className="fas fa-info-circle"; }
+            else if(type==="error") { t.classList.add('bg-rose-600'); ti.className="fas fa-exclamation-circle"; }
+            else { t.classList.add('bg-slate-800'); ti.className="fas fa-info-circle"; }
             t.classList.remove('translate-y-24', 'opacity-0'); setTimeout(() => t.classList.add('translate-y-24', 'opacity-0'), 3000);
         }
 
-        dom.btnCanc.onclick = () => closeModal(dom.selModal, dom.selContent); dom.btnX.onclick = () => closeModal(dom.selModal, dom.selContent);
-        dom.btnOk.onclick = () => closeModal(dom.actModal, dom.actContent); dom.btnActX.onclick = () => closeModal(dom.actModal, dom.actContent);
-        dom.selModal.onclick = (e) => { if (e.target === dom.selModal) closeModal(dom.selModal, dom.selContent); };
-        dom.actModal.onclick = (e) => { if (e.target === dom.actModal) closeModal(dom.actModal, dom.actContent); };
-        dom.inpName.onkeypress = (e) => { if (e.key === 'Enter') dom.btnConf.click(); };
+        // --- לוגיקת לחיצה על כיסא ---
+        function handleSeat(id) {
+            if (!currentUser) return showToast("ממתין לחיבור לרשת...", "error");
+            const data = seatsData[id];
+            
+            if (!data) { // כיסא פנוי
+                if(isSystemLocked && !isAdmin) return showToast("המערכת נעולה. לא ניתן לבחור מושבים כעת.", "error");
+                currentSelectedSeatId = id;
+                document.getElementById('modal-seat-number').innerText = id;
+                document.getElementById('modal-seat-type').innerText = getType(id);
+                document.getElementById('modal-seat-price').innerText = `₪${getPrice(id).toLocaleString()}`;
+                document.getElementById('occupant-name').value = '';
+                
+                const m = document.getElementById('selection-modal');
+                m.classList.remove('hidden'); setTimeout(() => m.classList.remove('opacity-0'), 10);
+                setTimeout(() => document.getElementById('occupant-name').focus(), 100);
+            } else { // כיסא תפוס
+                currentSelectedSeatId = id;
+                document.getElementById('action-seat-number').innerText = id;
+                document.getElementById('action-occupant-name-display').innerText = data.occupantName;
+                document.getElementById('action-occupant-name-edit').value = data.occupantName;
+                
+                const badge = document.getElementById('action-status-badge');
+                if(data.paymentStatus === 'paid') {
+                    badge.innerText = "שולם ואושר"; badge.className = "inline-block mt-3 px-3 py-1 text-sm font-bold rounded-full bg-rose-100 text-rose-700";
+                } else {
+                    badge.innerText = "ממתין לתשלום"; badge.className = "inline-block mt-3 px-3 py-1 text-sm font-bold rounded-full bg-yellow-100 text-yellow-700";
+                }
 
-        dom.btnConf.onclick = async () => {
-            const name = dom.inpName.value.trim();
-            if (name.length < 2) return dom.errName.classList.remove('hidden');
-            const orig = dom.btnConf.innerHTML; dom.btnConf.innerHTML = '<i class="fas fa-spinner fa-spin"></i> שומר...'; dom.btnConf.disabled = true;
+                // פעולות משתמש
+                const isOwner = data.userId === currentUser.uid;
+                document.getElementById('owner-actions').classList.toggle('hidden', !isOwner || isSystemLocked);
+
+                // פעולות מנהל
+                if(isAdmin) {
+                    document.getElementById('admin-actions').classList.remove('hidden');
+                    document.getElementById('btn-admin-toggle-payment').innerHTML = data.paymentStatus === 'paid' ? '<i class="fas fa-times-circle"></i> בטל אישור תשלום' : '<i class="fas fa-check-circle"></i> אשר תשלום';
+                }
+
+                const m = document.getElementById('action-modal');
+                m.classList.remove('hidden'); setTimeout(() => m.classList.remove('opacity-0'), 10);
+            }
+        }
+
+        // --- שמירת כיסא ---
+        document.getElementById('btn-confirm-seat').onclick = async () => {
+            const name = document.getElementById('occupant-name').value.trim();
+            if (name.length < 2) return showToast("אנא הזן שם תקין", "error");
+            
+            const btn = document.getElementById('btn-confirm-seat');
+            const orig = btn.innerHTML; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; btn.disabled = true;
+            
             try {
-                await setDoc(doc(db, COLLECTION_PUBLIC_SEATS, currentSelectedSeatId.toString()), { status: 'occupied', occupantName: name, userId: currentUser.uid, timestamp: new Date().toISOString() });
-                showToast(`מושב ${currentSelectedSeatId} נשמר!`, "success"); closeModal(dom.selModal, dom.selContent);
-            } catch (err) { showToast("שגיאה בשמירה. ודא הרשאות במסד הנתונים.", "error"); } 
-            finally { dom.btnConf.innerHTML = orig; dom.btnConf.disabled = false; }
+                const historyLog = [{ date: new Date().toISOString(), action: 'מושב נתפס', by: isAdmin ? 'מנהל' : 'משתמש' }];
+                await setDoc(doc(db, 'seats', currentSelectedSeatId.toString()), { 
+                    status: 'occupied', occupantName: name, userId: currentUser.uid, 
+                    paymentStatus: 'pending', price: getPrice(currentSelectedSeatId),
+                    timestamp: new Date().toISOString(), history: historyLog 
+                });
+                showToast(`מושב נשמר בהצלחה!`, "success"); closeModals();
+            } catch (err) { showToast("שגיאה בשמירה.", "error"); } 
+            finally { btn.innerHTML = orig; btn.disabled = false; }
         };
 
-        dom.btnRel.onclick = async () => {
-            const orig = dom.btnRel.innerHTML; dom.btnRel.innerHTML = '<i class="fas fa-spinner fa-spin"></i> מבטל...'; dom.btnRel.disabled = true;
+        // --- פעולות מחיקה (משתמש ומנהל) ---
+        const deleteSeat = async () => {
+            if(!confirm("האם אתה בטוח שברצונך לפנות את הכיסא?")) return;
             try {
-                await deleteDoc(doc(db, COLLECTION_PUBLIC_SEATS, currentSelectedSeatId.toString()));
-                showToast(`מושב שוחרר`, "info"); closeModal(dom.actModal, dom.actContent);
-            } catch (err) { showToast("שגיאה בשחרור.", "error"); } 
-            finally { dom.btnRel.innerHTML = orig; dom.btnRel.disabled = false; }
+                await deleteDoc(doc(db, 'seats', currentSelectedSeatId.toString()));
+                showToast(`המושב פונה`, "info"); closeModals();
+            } catch (err) { showToast("שגיאה בביטול.", "error"); }
+        };
+        document.getElementById('btn-release-seat').onclick = deleteSeat;
+        document.getElementById('btn-admin-delete').onclick = deleteSeat;
+
+        // --- פעולות מנהל נוספות ---
+        document.getElementById('btn-admin-toggle-payment').onclick = async () => {
+            const data = seatsData[currentSelectedSeatId];
+            const newStatus = data.paymentStatus === 'paid' ? 'pending' : 'paid';
+            const log = [...(data.history||[]), { date: new Date().toISOString(), action: newStatus==='paid'?'אישור תשלום':'ביטול תשלום', by: 'מנהל' }];
+            await updateDoc(doc(db, 'seats', currentSelectedSeatId.toString()), { paymentStatus: newStatus, history: log });
+            closeModals(); showToast("סטטוס עודכן");
         };
 
+        document.getElementById('btn-admin-edit-name').onclick = async () => {
+            const display = document.getElementById('action-occupant-name-display');
+            const input = document.getElementById('action-occupant-name-edit');
+            const btn = document.getElementById('btn-admin-edit-name');
+            
+            if(input.classList.contains('hidden')) {
+                display.classList.add('hidden'); input.classList.remove('hidden'); input.focus();
+                btn.innerHTML = '<i class="fas fa-save"></i> שמור שינוי';
+                btn.classList.replace('bg-blue-100', 'bg-emerald-100'); btn.classList.replace('text-blue-700', 'text-emerald-700');
+            } else {
+                const newName = input.value.trim();
+                if(newName && newName !== seatsData[currentSelectedSeatId].occupantName) {
+                    const log = [...(seatsData[currentSelectedSeatId].history||[]), { date: new Date().toISOString(), action: `שינוי שם ל-${newName}`, by: 'מנהל' }];
+                    await updateDoc(doc(db, 'seats', currentSelectedSeatId.toString()), { occupantName: newName, history: log });
+                    showToast("השם עודכן");
+                }
+                closeModals();
+                setTimeout(() => { btn.innerHTML = '<i class="fas fa-edit"></i> ערוך שם'; btn.classList.replace('bg-emerald-100', 'bg-blue-100'); btn.classList.replace('text-emerald-700', 'text-blue-700'); }, 300);
+            }
+        };
+
+        document.getElementById('btn-admin-view-history').onclick = () => {
+            const hc = document.getElementById('history-container');
+            if(hc.classList.contains('hidden')) {
+                hc.classList.remove('hidden');
+                const history = seatsData[currentSelectedSeatId].history || [];
+                hc.innerHTML = history.length === 0 ? 'אין היסטוריה' : history.map(h => 
+                    `<div class="mb-2 border-b border-slate-200 pb-1">
+                        <span class="font-bold">${new Date(h.date).toLocaleString('he-IL', {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'})}</span>: 
+                        ${h.action} (${h.by})
+                    </div>`
+                ).reverse().join('');
+            } else { hc.classList.add('hidden'); }
+        };
+
+        // --- חיפוש ---
+        dom.search.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase().trim();
+            document.querySelectorAll('.seat').forEach(el => el.classList.remove('flash'));
+            if(term.length < 2) return;
+            
+            for(let id in seatsData) {
+                if(seatsData[id].occupantName.toLowerCase().includes(term)) {
+                    const el = document.getElementById(`seat-${id}`);
+                    el.classList.add('flash');
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    break; // מהבהב לראשון שנמצא
+                }
+            }
+        });
+
+        // --- יצוא לאקסל ---
+        document.getElementById('btn-admin-export').onclick = () => {
+            let csv = '\uFEFFמספר כיסא,שם,מחיר,סטטוס,תאריך\n'; // BOM לעברית
+            for(let i=1; i<seatCounter; i++) {
+                const s = seatsData[i];
+                if(s) {
+                    const status = s.paymentStatus === 'paid' ? 'שולם' : 'ממתין';
+                    const date = new Date(s.timestamp).toLocaleDateString('he-IL');
+                    csv += `${i},${s.occupantName},${s.price},${status},${date}\n`;
+                }
+            }
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `מושבים_יובלים_דרום_${new Date().toLocaleDateString('he-IL')}.csv`;
+            link.click();
+        };
+
+        // --- נעילת מערכת ---
+        document.getElementById('btn-admin-lock').onclick = async () => {
+            const newLockState = !isSystemLocked;
+            await setDoc(doc(db, 'settings', 'global'), { locked: newLockState });
+        };
+
+        // --- סנכרון נתונים חי ---
         function sync() {
-            onSnapshot(collection(db, COLLECTION_PUBLIC_SEATS), (snap) => {
+            // האזנה למושבים
+            onSnapshot(collection(db, 'seats'), (snap) => {
                 seatsData = {}; snap.forEach(d => seatsData[d.id] = d.data()); updateUI();
+            });
+            // האזנה להגדרות מערכת (נעילה)
+            onSnapshot(doc(db, 'settings', 'global'), (docSnap) => {
+                isSystemLocked = docSnap.exists() && docSnap.data().locked === true;
+                dom.lockBanner.classList.toggle('hidden', !isSystemLocked);
+                if(isAdmin) {
+                    const lockBtn = document.getElementById('btn-admin-lock');
+                    lockBtn.innerHTML = isSystemLocked ? '<i class="fas fa-lock-open ml-1"></i> פתח מערכת' : '<i class="fas fa-lock ml-1"></i> נעל מערכת';
+                    lockBtn.className = isSystemLocked ? 'bg-indigo-600 hover:bg-indigo-500 px-3 py-1 rounded text-white' : 'bg-rose-600 hover:bg-rose-500 px-3 py-1 rounded text-white';
+                }
             });
         }
 
         function updateUI() {
             for (let i = 1; i < seatCounter; i++) {
-                const el = document.getElementById(`seat-${i}`);
-                if (!el) continue;
+                const el = document.getElementById(`seat-${i}`); if (!el) continue;
                 const d = seatsData[i];
                 el.className = 'seat'; el.removeAttribute('data-name');
-                if (d && d.status === 'occupied') {
-                    el.classList.add(currentUser && d.userId === currentUser.uid ? 'selected' : 'occupied');
+                if (d) {
                     el.dataset.name = d.occupantName;
-                } else { el.classList.add('available'); }
+                    if(currentUser && d.userId === currentUser.uid) { el.classList.add('selected'); } // שלי - סגול
+                    else if(d.paymentStatus === 'paid') { el.classList.add('occupied'); } // שולם - אדום
+                    else { el.classList.add('pending'); } // ממתין לתשלום - צהוב
+                } else { el.classList.add('available'); } // פנוי - ירוק
             }
         }
 
         async function init() {
+            if(isAdmin) dom.adminBar.classList.remove('hidden');
             try {
                 app = initializeApp(firebaseConfig); db = getFirestore(app); auth = getAuth(app);
                 buildLayout();
                 onAuthStateChanged(auth, (user) => {
-                    if (user) { currentUser = user; sync(); dom.loading.classList.add('hidden'); dom.container.classList.remove('hidden'); } 
-                    else { signInAnonymously(auth).catch(e => { dom.authStatus.innerText = "שגיאת התחברות אנונימית"; dom.authStatus.classList.remove('hidden'); dom.loading.classList.add('hidden'); }); }
+                    if (user) { currentUser = user; sync(); document.getElementById('loading-indicator').classList.add('hidden'); document.getElementById('synagogue-container').classList.remove('hidden'); } 
+                    else { signInAnonymously(auth); }
                 });
-            } catch (err) { dom.authStatus.innerText = "שגיאה כללית באתחול"; dom.authStatus.classList.remove('hidden'); dom.loading.classList.add('hidden'); }
+            } catch (err) { alert("שגיאת חיבור"); }
         }
 
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
+```
